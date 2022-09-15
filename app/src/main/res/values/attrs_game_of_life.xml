@@ -1,0 +1,6 @@
+<resources>
+    <declare-styleable name="GameOfLife">
+        <attr name="colorPrimary" format="color|reference" />
+        <attr name="colorGridLines" format="color|reference" />
+    </declare-styleable>
+</resources>

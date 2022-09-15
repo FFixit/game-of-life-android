@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">game-of-life</string>
+    <string name="welcome_text">test</string>
+</resources>
