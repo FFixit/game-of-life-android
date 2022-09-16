@@ -18,7 +18,7 @@ class GameOfLife : View {
 
     private val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.BLACK
-        strokeWidth = 5F
+        strokeWidth = 0F
     }
 
 
