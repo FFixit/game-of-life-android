@@ -7,6 +7,8 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import kotlin.math.min
+import kotlin.properties.Delegates
 
 class GameOfLife : View {
     private val boxPaint = Paint().apply {
@@ -20,12 +22,10 @@ class GameOfLife : View {
     }
 
 
-    private val sizeX = 10
-    private val sizeY = 15
+    private val sizeX = 15
+    private val sizeY = 20
     private var grid = Array(sizeX) { BooleanArray(sizeY) { false } }
-
-    private val boxWidth get() = width.toFloat() / sizeX
-    private val boxHeight get() = height.toFloat() / sizeY
+    private var boxSize by Delegates.notNull<Float>()
 
     constructor(context: Context) : super(context) {
         init(null)
@@ -40,11 +40,12 @@ class GameOfLife : View {
     }
 
     private fun init(attrs: AttributeSet?) {
-        grid[1][2] = true
-        grid[2][2] = true
-        grid[3][2] = true
-        grid[3][1] = true
-        grid[2][0] = true
+//        grid[1][2] = true
+//        grid[2][2] = true
+//        grid[3][2] = true
+//        grid[3][1] = true
+//        grid[2][0] = true
+
 
         context.theme.obtainStyledAttributes(
             attrs,
@@ -62,8 +63,8 @@ class GameOfLife : View {
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (event!!.action == MotionEvent.ACTION_DOWN) {
-            val x = (event.x / boxWidth).toInt()
-            val y = (event.y / boxHeight).toInt()
+            val x = (event.x / boxSize).toInt()
+            val y = (event.y / boxSize).toInt()
 
             grid[x][y] = !grid[x][y]
             invalidate()
@@ -79,38 +80,40 @@ class GameOfLife : View {
     }
 
     private fun drawGrid(canvas: Canvas) {
-        drawBoxes(canvas, boxWidth, boxHeight)
-        drawGridLines(canvas, boxWidth, boxHeight)
+        drawBoxes(canvas)
+        drawGridLines(canvas)
     }
 
-    private fun drawBoxes(canvas: Canvas, boxWidth: Float, boxHeight: Float) {
+    private fun drawBoxes(canvas: Canvas) {
         for (x in 0 until sizeX) {
             for (y in 0 until sizeY) {
                 if (grid[x][y]) {
-                    val posX = x * boxWidth
-                    val posY = y * boxHeight
-                    canvas.drawRect(posX, posY, posX + boxWidth, posY + boxHeight, boxPaint)
+                    val posX = x * boxSize
+                    val posY = y * boxSize
+                    canvas.drawRect(posX, posY, posX + boxSize, posY + boxSize, boxPaint)
                 }
             }
         }
     }
 
-    private fun drawGridLines(canvas: Canvas, boxWidth: Float, boxHeight: Float) {
+    private fun drawGridLines(canvas: Canvas) {
         val nLines = sizeX + 1 + sizeY + 1
         val lines = FloatArray(nLines * 4)
         var i = 0
+        val gridHeight = boxSize * sizeY
         for (x in 0..sizeX) {
-            val posX = x * boxWidth
+            val posX = x * boxSize
             lines[i++] = posX
             lines[i++] = 0F
             lines[i++] = posX
-            lines[i++] = height.toFloat()
+            lines[i++] = gridHeight
         }
+        val gridWidth = boxSize * sizeX
         for (y in 0..sizeY) {
-            val posY = y * boxHeight
+            val posY = y * boxSize
             lines[i++] = 0F
             lines[i++] = posY
-            lines[i++] = width.toFloat()
+            lines[i++] = gridWidth
             lines[i++] = posY
         }
         canvas.drawLines(lines, linePaint)
@@ -167,18 +170,14 @@ class GameOfLife : View {
         return nNeighbours
     }
 
-//    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-//        // Try for a width based on our minimum
-//        val minw: Int = paddingLeft + suggestedMinimumWidth
-//        val w: Int = View.resolveSizeAndState(minw, widthMeasureSpec, 1)
-//
-//        // Whatever the width ends up being, ask for a height that would let the pie
-//        // get as big as it can
-//        val minh: Int = View.MeasureSpec.getSize(w) + paddingBottom + paddingTop
-//        val h: Int = View.resolveSizeAndState(minh, heightMeasureSpec, 0)
-//
-//        setMeasuredDimension(w, h)
-//    }
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val width = getDefaultSize(suggestedMinimumWidth, widthMeasureSpec)
+        val height = getDefaultSize(suggestedMinimumHeight, heightMeasureSpec)
+
+        boxSize = min(width.toFloat() / sizeX, height.toFloat() / sizeY)
+
+        setMeasuredDimension((boxSize * sizeX).toInt(), (boxSize * sizeY).toInt())
+    }
 
 
 }
