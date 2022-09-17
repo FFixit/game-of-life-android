@@ -7,6 +7,9 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.disposables.Disposable
+import java.util.concurrent.TimeUnit
 import kotlin.math.min
 import kotlin.properties.Delegates
 
@@ -21,11 +24,14 @@ class GameOfLife : View {
         strokeWidth = 0F
     }
 
-
     private val sizeX = 15
     private val sizeY = 20
     private var grid = Array(sizeX) { BooleanArray(sizeY) { false } }
     private var boxSize by Delegates.notNull<Float>()
+    private var isRunning = false
+
+    private val interval = Observable.interval(100, TimeUnit.MILLISECONDS)
+    private lateinit var disposable: Disposable
 
     constructor(context: Context) : super(context) {
         init(null)
@@ -40,13 +46,6 @@ class GameOfLife : View {
     }
 
     private fun init(attrs: AttributeSet?) {
-//        grid[1][2] = true
-//        grid[2][2] = true
-//        grid[3][2] = true
-//        grid[3][1] = true
-//        grid[2][0] = true
-
-
         context.theme.obtainStyledAttributes(
             attrs,
             R.styleable.GameOfLife,
@@ -61,8 +60,20 @@ class GameOfLife : View {
         }
     }
 
+    fun startGame() {
+        if (!isRunning) {
+            disposable = interval.subscribe { nextTick() }
+            isRunning = true
+        }
+    }
+
+    fun pauseGame() {
+        disposable.dispose()
+        isRunning = false
+    }
+
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        if (event!!.action == MotionEvent.ACTION_DOWN) {
+        if (!isRunning && event!!.action == MotionEvent.ACTION_DOWN) {
             val x = (event.x / boxSize).toInt()
             val y = (event.y / boxSize).toInt()
 
@@ -71,7 +82,6 @@ class GameOfLife : View {
         }
         return true
     }
-
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
