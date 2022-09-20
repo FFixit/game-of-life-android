@@ -43,9 +43,7 @@
             android:id="@+id/switchGameRunning"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:text="Switch"
+            android:text="@string/switchGameRunningText"
             tools:layout_editor_absoluteX="339dp"
             tools:layout_editor_absoluteY="696dp" />
     </com.google.android.flexbox.FlexboxLayout>
