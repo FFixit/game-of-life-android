@@ -13,7 +13,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.Disposable
 import java.util.concurrent.TimeUnit
 import kotlin.math.floor
-import kotlin.math.min
 import kotlin.properties.Delegates
 
 class GameOfLife : View {
@@ -28,7 +27,7 @@ class GameOfLife : View {
     }
 
     private val sizeX = 15
-    private val sizeY = 20
+    private var sizeY = 20
     private var grid = HashSet<Coordinates>(100)
     private var boxSize by Delegates.notNull<Float>()
     private var offsetX = 0F
@@ -212,7 +211,8 @@ class GameOfLife : View {
         val width = getDefaultSize(suggestedMinimumWidth, widthMeasureSpec)
         val height = getDefaultSize(suggestedMinimumHeight, heightMeasureSpec)
 
-        boxSize = min(width.toFloat() / sizeX, height.toFloat() / sizeY)
+        boxSize = width.toFloat() / sizeX
+        sizeY = (height.toFloat() / boxSize).toInt()
 
         setMeasuredDimension((boxSize * sizeX).toInt(), (boxSize * sizeY).toInt())
     }
